@@ -9,9 +9,16 @@ public class PlayerController : MonoBehaviour
     float axisH = 0.0f;
     public float velocity = 3.0f;
 
-    public float jump = 6.0f;
+    public float jump = 3.0f;
     bool goJump = false; // 점프키 눌렀는지 안눌렀는지
     bool onGround = false; // 중요! 2단점프까지는 허용하는 게임들이 많음
+
+    // animator
+    Animator animator;
+    string oldClip = "Idle";
+    string newClip = "Idle";
+
+    public static string gameState = "Playing"; // 모든 영역에서 볼 수 있는 gameState라는 변수
 
     // Start is called before the first frame update
     void Start()
@@ -19,11 +26,18 @@ public class PlayerController : MonoBehaviour
     {
         rbody = this.GetComponent<Rigidbody2D>();
         // Application.targetFrameRate = 60;
+        animator = this.GetComponent<Animator>();
+
+
     }
 
     // Update is called once per frame
     void Update() // 1/60초 , 컴퓨터의 상황마다 호출하지 않을 수도 있음 (ex. 키 입력 이벤트)
     {
+        if (gameState != "Playing")
+        {
+            return;
+        }
        // Debug.Log("FPS: " + (1.0f / Time.deltaTime));
 
         axisH = Input.GetAxisRaw("Horizontal");
@@ -45,13 +59,42 @@ public class PlayerController : MonoBehaviour
 
         // 수평의 값을 받는 변수 = Input안에 특정한 키의 입력값을 받아오기
         // <-, ->를 -, +로 받아서 처리함
-/*        if (axisH != 0)
+        /*        if (axisH != 0)
+                {
+                    Debug.Log(axisH);
+                }*/
+
+
+        // 애니메이션 플레이는 Update()에서 처리하는 것이 효율적임
+        if (onGround)
         {
-            Debug.Log(axisH);
-        }*/
+            if(axisH == 0)
+            {
+                newClip = "Idle";
+            }
+            else
+            {
+                newClip = "Run";
+            }
+        }
+        else
+        {
+            newClip = "Jump";
+        }
+
+        if(oldClip != newClip)
+        {
+            oldClip = newClip;
+            animator.Play(newClip);
+        }
     }
     void FixedUpdate() // 0.02초, 무조건 호출함, 중요한 코드는 반드시 호출되어야 함. ( 움직임, 동작 ) 
     {
+        if (gameState != "Playing")
+        {
+            return;
+        }
+
         if (onGround || axisH != 0)
         {
             rbody.velocity = new Vector2(axisH * velocity, rbody.velocity.y);
@@ -87,9 +130,24 @@ public class PlayerController : MonoBehaviour
 
     public void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.tag == "goal")
+        if (collision.gameObject.tag == "Goal")
         {
             Debug.Log("스테이지 완료");
+            gameState = "gameClear";
+            animator.Play("Clear");
+            rbody.velocity = Vector2.zero;
+        }
+        //트리거 방식으로 충돌을 감지
+        else if (collision.gameObject.tag == "Dead")
+        {
+            gameState = "gameOver";
+            animator.Play("Dead");
+            rbody.velocity = Vector2.zero;
+            GetComponent<CapsuleCollider2D>().enabled = false;
+            // Dead Collision에 한번 충돌하고 이후는 충돌을 무시하여 떨어져야함
+            // = CapsuleCollieder 비활성화
+            rbody.AddForce(new Vector2(0, 5), ForceMode2D.Impulse);
+
         }
         
     }
