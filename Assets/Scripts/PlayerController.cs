@@ -24,6 +24,7 @@ public class PlayerController : MonoBehaviour
     void Start()
     // 특정 컴포넌트를 세팅하는 초기화 코드
     {
+        gameState = "Playing";
         rbody = this.GetComponent<Rigidbody2D>();
         // Application.targetFrameRate = 60;
         animator = this.GetComponent<Animator>();
