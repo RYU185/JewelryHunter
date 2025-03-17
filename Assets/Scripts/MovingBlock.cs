@@ -113,5 +113,23 @@ public class MovingBlock : MonoBehaviour
     public void Stop()
     {
         isCanMove = false;
+
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.tag == "Player")
+        {
+            collision.transform.SetParent(transform);
+        }
+    }
+
+    private void OnCollisionExit2D(Collision2D collision)
+
+    {
+        if (collision.gameObject.tag == "Player")
+        {
+            collision.transform.SetParent(null)  ;
+        }
     }
 }
