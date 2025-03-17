@@ -66,6 +66,7 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("nextButton");
         int currentScene = SceneManager.GetActiveScene().buildIndex;
+        int lastScene = SceneManager.sceneCountInBuildSettings - 1;
         SceneManager.LoadScene(currentScene+1);
     }
 }

@@ -28,8 +28,6 @@ public class PlayerController : MonoBehaviour
         rbody = this.GetComponent<Rigidbody2D>();
         // Application.targetFrameRate = 60;
         animator = this.GetComponent<Animator>();
-
-
     }
 
     // Update is called once per frame
